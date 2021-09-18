@@ -11,7 +11,8 @@ contract MakeChains is ERC721, ERC721Enumerable, AccessControl {
     
     struct Game { // Struct
         address[2] players;
-        string[3][3] gameState;
+        address[3][3] gameState;
+        uint currentPlayer;
     }
     
     mapping(address => address) gameIds;
@@ -41,11 +42,32 @@ contract MakeChains is ERC721, ERC721Enumerable, AccessControl {
         // Set first and second player
         getGame(_player1).players[0] = _player1;
         getGame(_player1).players[1] = _player2;
+        
+        // Set the first player
+        getGame(_player1).currentPlayer = 0;
     }
     
-    function takeTurn() public {
+    function takeTurn(uint x, uint y) public {
+        require(x < 3 && y < 3, "Don't play outside the board!");
+        require(msg.sender == getGame(msg.sender).players[getCurrentPlayer(msg.sender)], "Not your turn!");
         
+        Game storage game = getGame(msg.sender);
+        
+        // TODO create turn logic
+        
+        // Set turn to next player
+        game.currentPlayer = (game.currentPlayer + 1) % 2;
     }
+    
+    // Determines if game is over
+    function checkChains(address player) public view returns (bool) {
+        Game storage game = getGame(player);
+        
+        // TODO create logic to check if game is over
+        
+        return false;
+    }
+
     
     function getPlayer1(address player) public view returns (address) {
         return getGame(player).players[0];
@@ -55,19 +77,18 @@ contract MakeChains is ERC721, ERC721Enumerable, AccessControl {
         return getGame(player).players[1];
     }
     
-    function getGameState(address player) public view returns (string[3][3] memory) {
+    function getCurrentPlayer(address player) public view returns (uint) {
+        return getGame(player).currentPlayer;
+    }
+    
+    function getGameState(address player) public view returns (address[3][3] memory) {
         return getGame(player).gameState;
     }
     
     function getGame(address player) private view returns (Game storage) {
         return games[gameIds[player]];
     }
-
-    // Determines if game is over
-    function checkChains() public view returns (bool) {
-        return false;
-    }
-
+    
     // The following functions are overrides required by Solidity.
 
     function _beforeTokenTransfer(address from, address to, uint256 tokenId)

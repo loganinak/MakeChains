@@ -154,7 +154,7 @@
 			},
 			{
 				"inputs": [],
-				"name": "checkGameOver",
+				"name": "checkChains",
 				"outputs": [
 					{
 						"internalType": "bool",
@@ -684,11 +684,11 @@
 			]
 		},
 		"MakeChains.sol": {
-			"keccak256": "0x0de348eb88942f25b9c015309d53bb560e8e6c8032cb4c84ba307fa0cdec3cab",
+			"keccak256": "0x67a88e6402921e5806a323d3145d39edc9faf9676821a2f08891c70da29c4d2b",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://ab94c74ce439b98bb91a8293fb466b7a0a2e7ca3d20fde8e6043e2a6eec50834",
-				"dweb:/ipfs/QmZhTozrqxNNJALXYWCNGiLUDYCJterCj6Zfn83Trf5X1G"
+				"bzz-raw://b5cd46f982596bc2c744e56ffe78c02973a42ed843330985895185deadbcece2",
+				"dweb:/ipfs/QmYA7NKvZTY57zf9wwyqm2u9eaD5Zg9ofcgiZsDAKeQ4xd"
 			]
 		}
 	},

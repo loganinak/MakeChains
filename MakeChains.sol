@@ -6,10 +6,32 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract MakeChains is ERC721, ERC721Enumerable, Ownable {
-    constructor() ERC721("MakeChains", "Chains") {}
-
+    constructor(address _player1, address _player2) ERC721("MakeChains", "Chains") {
+        player1 = _player1;
+        player2 = _player2;
+    }
+    
+    address player1;
+    address player2;
+    
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+        return "";
+    }
+    
     function safeMint(address to, uint256 tokenId) public onlyOwner {
         _safeMint(to, tokenId);
+    }
+    
+    function startGame() public {
+        
+    }
+    
+    function takeTurn() public {
+        
+    }
+    
+    function checkChains() public returns (bool) {
+        return false;
     }
 
     // The following functions are overrides required by Solidity.
@@ -29,4 +51,6 @@ contract MakeChains is ERC721, ERC721Enumerable, Ownable {
     {
         return super.supportsInterface(interfaceId);
     }
+    
+
 }

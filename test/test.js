@@ -24,16 +24,16 @@ describe("MakeChains", function () {
     await makeChains.deployed();
 
     // Start the game
-    const startGameTx = await makeChains.connect(signer1).startGame("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", "0x70997970C51812dc3A010C7d01b50e0d17dc79C8");
+    const startGameTx = await makeChains.connect(signer1).startGame(signer1.address, signer2.address);
     await startGameTx.wait();
 
     // Record the board state before any turns to compare later
-    const boardTurn0 = await makeChains.hashboard("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+    const boardTurn0 = await makeChains.hashboard(signer1.address);
 
     // Player 1 takes a turn and the board state is recorded
     const turn1Tx = await makeChains.connect(signer1).takeTurn(1, 1);
     await turn1Tx.wait();
-    const boardTurn1 = await makeChains.hashboard("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+    const boardTurn1 = await makeChains.hashboard(signer1.address);
 
     // Check that the board state changed
     expect(boardTurn1).to.not.equal(boardTurn0);
@@ -41,7 +41,7 @@ describe("MakeChains", function () {
     // Player 2 takes a turn and the board state is recorded
     const turn2Tx = await makeChains.connect(signer2).takeTurn(2, 2);
     await turn2Tx.wait();
-    const boardTurn2 = await makeChains.hashboard("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+    const boardTurn2 = await makeChains.hashboard(signer2.address);
 
     // Check that the board state changed
     expect(boardTurn2).to.not.equal(boardTurn1);
@@ -57,7 +57,7 @@ describe("MakeChains", function () {
     await makeChains.deployed();
 
     // Start the game
-    const startGameTx = await makeChains.connect(signer1).startGame("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", "0x70997970C51812dc3A010C7d01b50e0d17dc79C8");
+    const startGameTx = await makeChains.connect(signer1).startGame(signer1.address, signer2.address);
     await startGameTx.wait();
 
     // Player 1 takes a turn
@@ -78,7 +78,7 @@ describe("MakeChains", function () {
     await makeChains.deployed();
 
     // Start the game
-    const startGameTx = await makeChains.connect(signer1).startGame("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", "0x70997970C51812dc3A010C7d01b50e0d17dc79C8");
+    const startGameTx = await makeChains.connect(signer1).startGame(signer1.address, signer2.address);
     await startGameTx.wait();
 
     // Player 1 takes a turn

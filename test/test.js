@@ -2,7 +2,7 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 describe("MakeChains", function () {
-  it("Both players should be in game.players and should be referencing the same game", async function () {
+  it("Both players should be in game.", async function () {
     const MakeChains = await ethers.getContractFactory("MakeChains");
     const makeChains = await MakeChains.deploy();
     await makeChains.deployed();
@@ -11,19 +11,21 @@ describe("MakeChains", function () {
     await startGameTx.wait();
 
     expect(await makeChains.getPlayer1("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")).to.equal("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
-    expect(await makeChains.getPlayer2("0x70997970C51812dc3A010C7d01b50e0d17dc79C8")).to.equal("0x70997970C51812dc3A010C7d01b50e0d17dc79C8");
+    expect(await makeChains.getPlayer1("0x70997970C51812dc3A010C7d01b50e0d17dc79C8")).to.equal("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
   });
-  it("The game description should be saved", async function () {
+  it("The game description should be saved and both players hsould reference the same description.", async function () {
     const MakeChains = await ethers.getContractFactory("MakeChains");
     const makeChains = await MakeChains.deploy();
     await makeChains.deployed();
 
     const startGameTx = await makeChains.startGame("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", "Test Game");
     await startGameTx.wait();
-
+    // Check that the description right and check that that each player references the same description
     expect(await makeChains.getGameDescription("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")).to.equal("Test Game");
+    expect(await makeChains.getGameDescription("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")).to.equal(await makeChains.getGameDescription("0x70997970C51812dc3A010C7d01b50e0d17dc79C8"));
+
   });
-  it("Players should be able to call takeTurn to change board state", async function (){
+  it("Players should be able to call takeTurn to change board state", async function () {
     // Setup 2 player accounts
     const signer1 = await ethers.getSigner("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
     const signer2 = await ethers.getSigner("0x70997970C51812dc3A010C7d01b50e0d17dc79C8");

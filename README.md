@@ -1,15 +1,2 @@
-# Basic Sample Hardhat Project
-
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts.
-
-Try running some of the following tasks:
-
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-node scripts/sample-script.js
-npx hardhat help
-```
+# What is MakeChains
+MakeChains is Tic-Tac-Toe ported to the blockchain. I am trying to learn solidity and create some souveneirs for myself so I am planning to deploy this and all project on polygon since it's cheap and viewable on opensea. I'm planning on creating a webui and having the contract generate a NFT based on the game results.

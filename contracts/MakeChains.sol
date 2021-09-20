@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.2;
+pragma solidity 0.7.6;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 
-contract MakeChains is ERC721, ERC721Enumerable {
+contract MakeChains is ERC721 {
     struct Game {
         // Struct
         address[2] players;
@@ -207,24 +206,5 @@ contract MakeChains is ERC721, ERC721Enumerable {
 
         // otherwise, use the default ERC721.isApprovedForAll()
         return ERC721.isApprovedForAll(_owner, _operator);
-    }
-
-    // The following functions are overrides required by Solidity.
-
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 tokenId
-    ) internal override(ERC721, ERC721Enumerable) {
-        super._beforeTokenTransfer(from, to, tokenId);
-    }
-
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(ERC721, ERC721Enumerable)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
     }
 }

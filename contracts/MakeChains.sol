@@ -105,24 +105,34 @@ contract MakeChains is ERC721, ERC721Enumerable {
     function checkChains(uint8[3][3] memory board, uint8 playerPiece)
         public
         pure
-        returns (uint256)
+        returns (uint8)
     {
-        // TODO create logic to check diagonals
-        for (uint256 i = 0; i < board.length; i++) {
+        // Check rows and columns
+        for (uint8 i = 0; i < board.length; i++) {
             uint8 countAcross = 0;
             uint8 countDown = 0;
 
-            for (uint256 j = 0; j < board.length; j++) {
+            for (uint8 j = 0; j < board.length; j++) {
                 if (board[i][j] == playerPiece) {
                     countAcross += 1;
                 }
 
-                if (board[i][j] == playerPiece) {
+                if (board[j][i] == playerPiece) {
                     countDown += 1;
                 }
             }
 
             if (countAcross == 3 || countDown == 3) {
+                return playerPiece;
+            }
+        }
+
+        // check diagonols
+        if (board[1][1] == playerPiece) {
+            // check up diagonal
+            if (board[0][2] == playerPiece && board[2][0] == playerPiece) {
+                return playerPiece;
+            } else if (board[0][0] == playerPiece && board[2][2] == playerPiece) {
                 return playerPiece;
             }
         }

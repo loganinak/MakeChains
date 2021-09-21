@@ -41,6 +41,10 @@ contract MakeChains is ERC721 {
             gameIds[_player1] == bytes32(0) && gameIds[_player2] == bytes32(0),
             "You can't play two games at once for now"
         );
+        // require unique gameId which means unique comnbination of players and description
+        require(
+            games[keccak256(abi.encodePacked(_player1, _player2, _description))].players[0] == address(0)
+        );
 
         // Set the game
         gameIds[_player1] = keccak256(
@@ -64,13 +68,16 @@ contract MakeChains is ERC721 {
     function closeGame(Game storage game) private {
         Game memory newGame;
 
+        gameIds[game.players[0]] = bytes32(0);
+        gameIds[game.players[1]] = bytes32(0);
+
         game.board = newGame.board;
         game.turnNumber = newGame.turnNumber;
         game.players = newGame.players;
         game.description = newGame.description;
     }
 
-    function takeTurn(uint8 i, uint8 j) public {
+    function takeTurn(uint8 i, uint8 j) public returns (uint) {
         // Make sure they are playing inside the board
         require(i < 3 && j < 3, "Don't play outside the board!");
 
@@ -86,7 +93,7 @@ contract MakeChains is ERC721 {
         game.board[i][j] = getCurrentPlayerPiece(msg.sender);
 
         // Check for a win
-        uint256 result = checkChains(
+        uint result = checkChains(
             game.board,
             getCurrentPlayerPiece(msg.sender)
         );
@@ -98,6 +105,8 @@ contract MakeChains is ERC721 {
             // Increment the turn
             game.turnNumber += 1;
         }
+
+        return result;
     }
 
     // Determines if game is over
@@ -131,7 +140,9 @@ contract MakeChains is ERC721 {
             // check up diagonal
             if (board[0][2] == playerPiece && board[2][0] == playerPiece) {
                 return playerPiece;
-            } else if (board[0][0] == playerPiece && board[2][2] == playerPiece) {
+            } else if (
+                board[0][0] == playerPiece && board[2][2] == playerPiece
+            ) {
                 return playerPiece;
             }
         }
@@ -154,6 +165,10 @@ contract MakeChains is ERC721 {
         }
     }
 
+    function forfeitGame() public {
+        closeGame(getGame(msg.sender));
+    }
+
     function getPlayer1(address player) public view returns (address) {
         return getGame(player).players[0];
     }
@@ -174,8 +189,20 @@ contract MakeChains is ERC721 {
         return getGame(player).board;
     }
 
+    function getSpot(uint8 x, uint8 y) public view returns (uint8) {
+        return getGame(msg.sender).board[x][y];
+    }
+
     function getGame(address player) private view returns (Game storage) {
         return games[gameIds[player]];
+    }
+
+    function isGameStarted(address player) private view returns (bool) {
+        if (getGame(player).players[0] == address(0)) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     function getGameDescription(address player)

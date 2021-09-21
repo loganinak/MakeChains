@@ -1,0 +1,7 @@
+.ticTacButton {
+    min-width: 64px;
+    min-height: 64px;
+    max-width: 64px;
+    max-height: 64px;
+    margin: 4px;
+}

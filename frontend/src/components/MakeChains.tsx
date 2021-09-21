@@ -1,42 +1,120 @@
 import React, { useContext, useEffect, useState } from "react";
 import { MakeChainsContext } from "../hardhat/SymfoniContext";
+import './style.css';
 
-interface Props {}
+interface Props { }
 
 export const MakeChains: React.FC<Props> = () => {
-    const makeChains = useContext(MakeChainsContext)
-    const [message, setMessage] = useState("");
+    const makeChains = useContext(MakeChainsContext);
+    const [inputAddress1, setInputAddress1] = useState("");
+    const [inputAddress2, setInputAddress2] = useState("");
+
+    const spot00 = useGetSpot(0, 0);
+    const spot10 = useGetSpot(1, 0);
+    const spot20 = useGetSpot(2, 0);
+
+    const spot01 = useGetSpot(0, 1);
+    const spot11 = useGetSpot(1, 1);
+    const spot21 = useGetSpot(2, 1);
+
+    const spot02 = useGetSpot(0, 2);
+    const spot12 = useGetSpot(1, 2);
+    const spot22 = useGetSpot(2, 2);
 
     useEffect(() => {
         const doAsync = async () => {
             if (!makeChains.instance) return
-            console.log("MakeChains is deployed at ", makeChains.instance.address)
+            console.log("MakeChains is deployed at ", makeChains.instance.address);
+            console.log("Connected account is ");
         };
         doAsync();
     }, [makeChains]);
 
-    const handleTakeTurn = async (
+    function useGetSpot(x: number, y: number) {
+        const [spot, setSpot] = useState(0);
+
+        useEffect(() => {
+            const interval = setInterval(() => {
+                const doAsync = async () => {
+                    if (!makeChains.instance) return
+                    const piece = await makeChains.instance.getSpot(x, y);
+                    setSpot(piece);
+                };
+                doAsync();
+            }, 1000);
+            return () => clearInterval(interval);
+        });
+
+        return spot;
+    }
+
+    const handleStartGame = async (
         e: React.MouseEvent<HTMLButtonElement, MouseEvent>
     ) => {
         e.preventDefault();
-        if(!makeChains.instance) throw Error("Makechains instance not ready");
+        if (!makeChains.instance) throw Error("Makechains instance not ready");
         if (makeChains.instance) {
-            const tx = await makeChains.instance.startGame("0xB3F3cfb38EEF50dbEaC878730e69A83d9909e91B", "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc", "first ui");
-            console.log("attempting to take turn", tx);
+            const tx = await makeChains.instance.startGame(inputAddress1, inputAddress1, "first ui");
+            console.log("Starting game", tx);
             await tx.wait();
 
-            const getBoard = await makeChains.instance.getPlayer1("0xB3F3cfb38EEF50dbEaC878730e69A83d9909e91B");
             console.log(
-                "Turn taken, result: ",
-                getBoard
+                "Game started, player1: ", await makeChains.instance.getPlayer1(inputAddress1),
+                "player2: ", await makeChains.instance.getPlayer2(inputAddress2),
             )
         }
     };
+
+    const handleTakeTurn = async (
+        e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+        x: any,
+        y: any
+    ) => {
+        e.preventDefault();
+        if (!makeChains.instance) throw Error("Makechains instance not ready");
+        if (makeChains.instance) {
+            console.log("Taking turn at: ", x, ", ", y);
+            const tx = await makeChains.instance.takeTurn(x, y);
+            await tx.wait();
+            console.log(tx)
+        }
+    };
+
+    const handleForfeitGame = async (
+        e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    ) => {
+        if (!makeChains.instance) throw Error("Makechains instance not ready");
+        if (makeChains.instance) {
+            const tx = await makeChains.instance.forfeitGame();
+            console.log("Forfeiting Game");
+            await tx.wait();
+        }
+    };
+
     return (
         <div>
-            <p>MakeChains component loaded!!</p>
-            <p>{message}</p>
-            <button onClick={(e) => handleTakeTurn(e)}>Start Game</button>
+            <div>
+                <button className="ticTacButton" onClick={(e) => handleTakeTurn(e, 0, 0)}>{spot00}</button>
+                <button className="ticTacButton" onClick={(e) => handleTakeTurn(e, 1, 0)}>{spot10}</button>
+                <button className="ticTacButton" onClick={(e) => handleTakeTurn(e, 2, 0)}>{spot20}</button>
+            </div>
+            <div>
+                <button className="ticTacButton" onClick={(e) => handleTakeTurn(e, 0, 1)}>{spot01}</button>
+                <button className="ticTacButton" onClick={(e) => handleTakeTurn(e, 1, 1)}>{spot11}</button>
+                <button className="ticTacButton" onClick={(e) => handleTakeTurn(e, 2, 1)}>{spot21}</button>
+            </div>
+            <div>
+                <button className="ticTacButton" onClick={(e) => handleTakeTurn(e, 0, 2)}>{spot02}</button>
+                <button className="ticTacButton" onClick={(e) => handleTakeTurn(e, 1, 2)}>{spot12}</button>
+                <button className="ticTacButton" onClick={(e) => handleTakeTurn(e, 2, 2)}>{spot22}</button>
+            </div>
+            <input onChange={(e) => setInputAddress1(e.target.value)}></input>
+            <input onChange={(e) => setInputAddress2(e.target.value)}></input>
+            <button onClick={(e) => handleStartGame(e)}>Start Game</button>
+            <div>
+                <button onClick={(e) => handleForfeitGame(e)}>Forfiet Game</button>
+            </div>
         </div>
     )
 }
+

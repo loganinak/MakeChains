@@ -1,13 +1,14 @@
 import React, { useContext, useEffect, useState } from "react";
-import { MakeChainsContext } from "../hardhat/SymfoniContext";
+import { MakeChainsContext, CurrentAddressContext } from "../hardhat/SymfoniContext";
 import './style.css';
+
 
 interface Props { }
 
 export const MakeChains: React.FC<Props> = () => {
     const makeChains = useContext(MakeChainsContext);
-    const [inputAddress1, setInputAddress1] = useState("");
-    const [inputAddress2, setInputAddress2] = useState("");
+    const [currentAddress, ] = useContext(CurrentAddressContext);
+    const [inputAddress, setInputAddress] = useState("");
 
     const spot00 = useGetSpot(0, 0);
     const spot10 = useGetSpot(1, 0);
@@ -25,10 +26,12 @@ export const MakeChains: React.FC<Props> = () => {
         const doAsync = async () => {
             if (!makeChains.instance) return
             console.log("MakeChains is deployed at ", makeChains.instance.address);
-            console.log("Connected account is ");
+            console.log("connected address: ", currentAddress);
+
+
         };
         doAsync();
-    }, [makeChains]);
+    }, [makeChains, currentAddress]);
 
     function useGetSpot(x: number, y: number) {
         const [spot, setSpot] = useState(0);
@@ -54,21 +57,21 @@ export const MakeChains: React.FC<Props> = () => {
         e.preventDefault();
         if (!makeChains.instance) throw Error("Makechains instance not ready");
         if (makeChains.instance) {
-            const tx = await makeChains.instance.startGame(inputAddress1, inputAddress1, "first ui");
+            const tx = await makeChains.instance.startGame(currentAddress, inputAddress, "first ui");
             console.log("Starting game", tx);
             await tx.wait();
 
             console.log(
-                "Game started, player1: ", await makeChains.instance.getPlayer1(inputAddress1),
-                "player2: ", await makeChains.instance.getPlayer2(inputAddress2),
+                "Game started, player1: ", await makeChains.instance.getPlayer1(inputAddress),
+                "player2: ", await makeChains.instance.getPlayer2(inputAddress),
             )
         }
     };
 
     const handleTakeTurn = async (
         e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-        x: any,
-        y: any
+        x: number,
+        y: number
     ) => {
         e.preventDefault();
         if (!makeChains.instance) throw Error("Makechains instance not ready");
@@ -108,8 +111,7 @@ export const MakeChains: React.FC<Props> = () => {
                 <button className="ticTacButton" onClick={(e) => handleTakeTurn(e, 1, 2)}>{spot12}</button>
                 <button className="ticTacButton" onClick={(e) => handleTakeTurn(e, 2, 2)}>{spot22}</button>
             </div>
-            <input onChange={(e) => setInputAddress1(e.target.value)}></input>
-            <input onChange={(e) => setInputAddress2(e.target.value)}></input>
+            <input onChange={(e) => setInputAddress(e.target.value)}></input>
             <button onClick={(e) => handleStartGame(e)}>Start Game</button>
             <div>
                 <button onClick={(e) => handleForfeitGame(e)}>Forfiet Game</button>

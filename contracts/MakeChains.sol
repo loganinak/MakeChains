@@ -197,7 +197,7 @@ contract MakeChains is ERC721 {
         return games[gameIds[player]];
     }
 
-    function isGameStarted(address player) private view returns (bool) {
+    function isGameStarted(address player) public view returns (bool) {
         if (getGame(player).players[0] == address(0)) {
             return false;
         } else {

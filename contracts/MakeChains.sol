@@ -22,6 +22,11 @@ contract MakeChains is ERC721 {
         address indexed player2
     );
 
+    event GameForfeited (
+        address indexed player1,
+        address indexed player2
+    );
+
     event TurnTaken (
         address indexed player1,
         address indexed player2,
@@ -107,7 +112,7 @@ contract MakeChains is ERC721 {
         game.board[i][j] = getCurrentPlayerPiece(msg.sender);
 
         // Announce Move
-        emit TurnTaken(getGame(msg.sender).players[0], getGame(msg.sender).players[0], i, j);
+        emit TurnTaken(getGame(msg.sender).players[0], getGame(msg.sender).players[1], i, j);
 
         // Check for a win
         uint result = checkChains(
@@ -183,7 +188,10 @@ contract MakeChains is ERC721 {
     }
 
     function forfeitGame() public {
+        address player1 = getPlayer1(msg.sender);
+        address player2 = getPlayer2(msg.sender);
         closeGame(getGame(msg.sender));
+        emit GameForfeited(player1, player2);
     }
 
     function getPlayer1(address player) public view returns (address) {

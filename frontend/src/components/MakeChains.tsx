@@ -11,17 +11,17 @@ export const MakeChains: React.FC<Props> = () => {
     const [inputAddress, setInputAddress] = useState("");
     const [gameStarted, setGameStarted] = useState(Boolean);
 
-    const spot00 = useGetSpot(0, 0);
-    const spot10 = useGetSpot(1, 0);
-    const spot20 = useGetSpot(2, 0);
+    const [spot00, setSpot00] = useState(0);
+    const [spot10, setSpot10] = useState(0);
+    const [spot20, setSpot20] = useState(0);
 
-    const spot01 = useGetSpot(0, 1);
-    const spot11 = useGetSpot(1, 1);
-    const spot21 = useGetSpot(2, 1);
+    const [spot01, setSpot01] = useState(0);
+    const [spot11, setSpot11] = useState(0);
+    const [spot21, setSpot21] = useState(0);
 
-    const spot02 = useGetSpot(0, 2);
-    const spot12 = useGetSpot(1, 2);
-    const spot22 = useGetSpot(2, 2);
+    const [spot02, setSpot02] = useState(0);
+    const [spot12, setSpot12] = useState(0);
+    const [spot22, setSpot22] = useState(0);
 
     useEffect(() => {
         const doAsync = async () => {
@@ -29,29 +29,114 @@ export const MakeChains: React.FC<Props> = () => {
             console.log("MakeChains is deployed at ", makeChains.instance.address);
             console.log("connected address: ", connectedAddress);
 
-            // setGameStarted(await makeChains.instance.isGameStarted(connectedAddress));
+            setGameStarted(await makeChains.instance.isGameStarted(connectedAddress));
+            const gameStartedAsPlayer1 = makeChains.instance.filters.GameStarted(connectedAddress, null);
+            makeChains.instance.on(
+                gameStartedAsPlayer1,
+                async (player1, player2, event) => {
+                    console.log("event GameStartedAsPlayer1 fired");
+                    // console.log("player1", player1);
+                    // console.log("player2", player2);
+                    // console.log(event);
+                    setGameStarted(true);
+                });
+            const gameStartedAsPlayer2 = makeChains.instance.filters.GameStarted(null, connectedAddress);
+            makeChains.instance.on(
+                gameStartedAsPlayer2,
+                async (player1, player2, event) => {
+                    console.log("event GameStartedAsPlayer2 fired");
+                    // console.log("player1", player1);
+                    // console.log("player2", player2);
+                    // console.log(event);
+                    setGameStarted(true);
+                });
 
+            const gameForfeitedAsPlayer1 = makeChains.instance.filters.GameForfeited(connectedAddress, null);
+            makeChains.instance.on(
+                gameForfeitedAsPlayer1,
+                async (player1, player2, event) => {
+                    console.log("event GameForfeited fired");
+                    // console.log("player1", player1);
+                    // console.log("player2", player2);
+                    // console.log(event);
+                    setGameStarted(false);
+                });
+            const gameForfeitedAsPlayer2 = makeChains.instance.filters.GameForfeited(null, connectedAddress);
+            makeChains.instance.on(
+                gameForfeitedAsPlayer2,
+                async (player1, player2, event) => {
+                    console.log("event GameForfeited fired");
+                    // console.log("player1", player1);
+                    // console.log("player2", player2);
+                    // console.log(event);
+                    setGameStarted(false);
+                });
+
+            const turnTakenPlayer1 = makeChains.instance.filters.TurnTaken(connectedAddress, null, null, null);
+            makeChains.instance.on(turnTakenPlayer1,
+                async (player1, player2, x, y, event) => {
+                    console.log("event TurnTaken for player1 fired");
+                    if (!makeChains.instance) return
+                    const piece = await makeChains.instance.getSpot(x, y);
+                    setSpot(x, y, piece);
+                });
+            const turnTakenPlayer2 = makeChains.instance.filters.TurnTaken(null, connectedAddress, null, null);
+            makeChains.instance.on(turnTakenPlayer2,
+                async (player1, player2, x, y, event) => {
+                    console.log("event TurnTaken for player2 fired");
+                    if (!makeChains.instance) return
+                    const piece = await makeChains.instance.getSpot(x, y);
+                    setSpot(x, y, piece);
+                });
         };
         doAsync();
     }, [makeChains, connectedAddress]);
 
-    function useGetSpot(x: number, y: number) {
-        const [spot, setSpot] = useState(0);
-
-        useEffect(() => {
-            const interval = setInterval(() => {
-                const doAsync = async () => {
-                    if (!makeChains.instance) return
-                    const piece = await makeChains.instance.getSpot(x, y);
-                    setSpot(piece);
-                };
-                doAsync();
-            }, 10000);
-            return () => clearInterval(interval);
-        });
-
-        return spot;
+    function setSpot(x: number, y: number, piece: number) {
+        if (x === 0) {
+            if (y === 0) {
+                setSpot00(piece);
+            } else if (y === 1) {
+                setSpot01(piece);
+            } else if (y === 2) {
+                setSpot02(piece);
+            }
+        } else if (x === 1) {
+            if (y === 0) {
+                setSpot10(piece);
+            } else if (y === 1) {
+                setSpot11(piece);
+            } else if (y === 2) {
+                setSpot12(piece);
+            }
+        } else if (x === 2) {
+            if (y === 0) {
+                setSpot20(piece);
+            } else if (y === 1) {
+                setSpot21(piece);
+            } else if (y === 2) {
+                setSpot22(piece);
+            }
+        }
     }
+
+    /*     function useGetSpot(x: number, y: number) {
+            const [spot, setSpot] = useState(0);
+    
+            useEffect(() => {
+                const interval = setInterval(() => {
+                    const doAsync = async () => {
+                        if (!makeChains.instance) return
+                        const piece = await makeChains.instance.getSpot(x, y);
+                        setSpot(piece);
+                    };
+                    doAsync();
+                }, 10000);
+                return () => clearInterval(interval);
+            });
+    
+            return spot;
+        } */
 
     const handleStartGame = async (
         e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -100,24 +185,6 @@ export const MakeChains: React.FC<Props> = () => {
     };
 
     function render() {
-        if (makeChains.instance) {
-            const gameStartedAsPlayer2 = makeChains.instance.filters.GameStarted(null, connectedAddress);
-            makeChains.instance.on(
-                gameStartedAsPlayer2,
-                async (player1, player2, event) => {
-                    console.log("event GameStarted fired");
-                    // console.log("player1", player1);
-                    // console.log("player2", player2);
-                    // console.log(event);
-                    setGameStarted(true);
-                });
-
-            const turnTakenPlayer1 = makeChains.instance.filters.TurnTaken(connectedAddress, null, null, null);
-            makeChains.instance.on(turnTakenPlayer1,
-                async (player1, player2, event) => {
-                    console.log("event TurnTaken for player1 fired");
-                });
-        }
         if (gameStarted) {
             return (
                 <div>

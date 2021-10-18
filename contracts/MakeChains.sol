@@ -17,6 +17,18 @@ contract MakeChains is ERC721 {
 
     constructor() ERC721("Make Chains", "Chains") {}
 
+    event GameStarted (
+        address indexed player1,
+        address indexed player2
+    );
+
+    event TurnTaken (
+        address indexed player1,
+        address indexed player2,
+        uint8 x,
+        uint8 y
+    );
+
     function tokenURI(uint256 tokenId)
         public
         view
@@ -63,6 +75,8 @@ contract MakeChains is ERC721 {
 
         // Set the first player
         getGame(_player1).turnNumber = 0;
+
+        emit GameStarted(_player1, _player2);
     }
 
     function closeGame(Game storage game) private {
@@ -91,6 +105,9 @@ contract MakeChains is ERC721 {
 
         // Mark down the move
         game.board[i][j] = getCurrentPlayerPiece(msg.sender);
+
+        // Announce Move
+        emit TurnTaken(getGame(msg.sender).players[0], getGame(msg.sender).players[0], i, j);
 
         // Check for a win
         uint result = checkChains(
